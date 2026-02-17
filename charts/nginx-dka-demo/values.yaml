@@ -1,0 +1,38 @@
+replicaCount: 3
+
+image:
+  repository: nginx
+  tag: latest
+  pullPolicy: IfNotPresent
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+service:
+  type: ClusterIP
+  port: 80
+
+autoscaler:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 100
+  targetCPUUtilization: 70
+  scaleUp:
+    rules:
+      - type: Percent
+        value: 50
+        periodSeconds: 120
+    stabilizationWindowSeconds: 600
+    strategy: Max
+  scaleDown:
+    rules:
+      - type: Percent
+        value: 20
+        periodSeconds: 1200
+    stabilizationWindowSeconds: 600
+    strategy: Max

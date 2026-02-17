@@ -1,0 +1,33 @@
+apiVersion: datadoghq.com/v2alpha1
+kind: DatadogAgent
+metadata:
+  name: datadog
+  namespace: datadog
+spec:
+  features:
+    autoscaling:
+      workload:
+        enabled: true
+    eventCollection:
+      unbundleEvents: true
+  global:
+    site: datadoghq.com
+    credentials:
+      apiSecret:
+        secretName: datadog-secret
+        keyName: api-key
+      appSecret:
+        secretName: datadog-secret
+        keyName: app-key
+    clusterName: minikube-dka-demo
+    kubelet:
+      tlsVerify: false
+  override:
+    clusterAgent:
+      env:
+        - name: DD_AUTOSCALING_FAILOVER_ENABLED
+          value: "true"
+    nodeAgent:
+      env:
+        - name: DD_AUTOSCALING_FAILOVER_ENABLED
+          value: "true"

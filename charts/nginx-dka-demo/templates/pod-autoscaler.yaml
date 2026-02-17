@@ -1,0 +1,40 @@
+{{- if .Values.autoscaler.enabled }}
+apiVersion: datadoghq.com/v1alpha2
+kind: DatadogPodAutoscaler
+metadata:
+  name: nginx
+  namespace: nginx-dka-demo
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nginx
+  owner: Local
+  constraints:
+    minReplicas: {{ .Values.autoscaler.minReplicas }}
+    maxReplicas: {{ .Values.autoscaler.maxReplicas }}
+    containers:
+    - name: nginx
+      enabled: true
+  objectives:
+  - type: PodResource
+    podResource:
+      name: cpu
+      value:
+        type: Utilization
+        utilization: {{ .Values.autoscaler.targetCPUUtilization }}
+  applyPolicy:
+    mode: Apply
+    update:
+      strategy: Auto
+    scaleUp:
+      strategy: {{ .Values.autoscaler.scaleUp.strategy }}
+      stabilizationWindowSeconds: {{ .Values.autoscaler.scaleUp.stabilizationWindowSeconds }}
+      rules:
+      {{- toYaml .Values.autoscaler.scaleUp.rules | nindent 6 }}
+    scaleDown:
+      strategy: {{ .Values.autoscaler.scaleDown.strategy }}
+      stabilizationWindowSeconds: {{ .Values.autoscaler.scaleDown.stabilizationWindowSeconds }}
+      rules:
+      {{- toYaml .Values.autoscaler.scaleDown.rules | nindent 6 }}
+{{- end }}
